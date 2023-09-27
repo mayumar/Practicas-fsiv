@@ -13,7 +13,8 @@ fsiv_combine_images(const cv::Mat& foreground, const cv::Mat& background,
     cv::Mat output;
     //TODO
     // HINT: you can copy the backg on the foreg using the mask.
-
+    background.copyTo(output);
+    foreground.copyTo(output, mask);
     //
     CV_Assert(output.size() == foreground.size());
     CV_Assert(output.type()==foreground.type());
@@ -31,7 +32,9 @@ fsiv_create_mask_from_hsv_range(const cv::Mat& img,
     //TODO
     //Hint: use cv::cvtColor to change to HSV color space.
     //Hint: use cv::inRange to get the mask.
-
+    cv::Mat img_hsv;
+    cv::cvtColor(img, img_hsv, cv::COLOR_BGR2HSV);
+    cv::inRange(img_hsv, lower_bound, upper_bound, mask);
     //
     CV_Assert(mask.size()==img.size());
     CV_Assert(mask.depth()==CV_8U);
@@ -50,6 +53,19 @@ fsiv_apply_chroma_key(const cv::Mat &foreg, const cv::Mat& backg, int hue,
     //Hint: use all range for channels S and V.
     //Remember: the backg img must have the same dimensions to combine with
     //  foreg img. You can use cv::resize to assure this.
+    
+    lower_b = cv::Scalar(hue-sensitivity, 0, 0);
+    upper_b = cv::Scalar(hue+sensitivity, 255, 255);
+    cv::Mat mask = fsiv_create_mask_from_hsv_range(foreg, lower_b, upper_b);
+
+    cv::Mat aux_back;
+    backg.copyTo(aux_back);
+    
+    if(aux_back.size() != foreg.size()){
+        cv::resize(backg, aux_back, foreg.size());
+    }
+
+    out = fsiv_combine_images(foreg, aux_back, 255-mask);
 
     //
     CV_Assert(out.size()==foreg.size());
