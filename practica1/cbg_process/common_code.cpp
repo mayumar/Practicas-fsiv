@@ -1,7 +1,7 @@
 #include "common_code.hpp"
 
 cv::Mat
-convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out)
+fsiv_convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out)
 {
     CV_Assert(img.depth()==CV_8U);
     //TODO
@@ -14,7 +14,7 @@ convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out)
 }
 
 cv::Mat
-convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out)
+fsiv_convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out)
 {
     CV_Assert(img.depth()==CV_32F);
     //TODO
@@ -27,7 +27,7 @@ convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out)
 }
 
 cv::Mat
-convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out)
+fsiv_convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out)
 {
     CV_Assert(img.channels()==3);
     //TODO
@@ -38,7 +38,7 @@ convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out)
 }
 
 cv::Mat
-convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out)
+fsiv_convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out)
 {
     CV_Assert(img.channels()==3);
     //TODO
@@ -49,7 +49,7 @@ convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out)
 }
 
 cv::Mat
-cbg_process (const cv::Mat & in, cv::Mat& out,
+fsiv_cbg_process (const cv::Mat & in, cv::Mat& out,
              double contrast, double brightness, double gamma,
              bool only_luma)
 {
@@ -57,6 +57,7 @@ cbg_process (const cv::Mat & in, cv::Mat& out,
     //TODO
     //Recuerda: es recomendable trabajar en flotante [0,1]
     //Después deshacer el cambio a byte [0,255]
+    //Recuerda: usa código vectorizado.
 
 
     //

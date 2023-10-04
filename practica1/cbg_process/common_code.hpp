@@ -12,7 +12,7 @@
  * @return la imagen de salida.
  * @warning la imagen de entrada puede ser monocroma o RGB.
  */
-cv::Mat convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out);
+cv::Mat fsiv_convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out);
 
 /**
  * @brief Convierte una imagen con tipo float [0,1] a byte [0,255].
@@ -21,7 +21,7 @@ cv::Mat convert_image_byte_to_float(const cv::Mat& img, cv::Mat& out);
  * @return la imagen de salida.
  * @warning la imagen de entrada puede ser monocroma o RGB.
  */
-cv::Mat convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out);
+cv::Mat fsiv_convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out);
 
 /**
  * @brief Convierte una imagen en color BGR a HSV.
@@ -29,7 +29,7 @@ cv::Mat convert_image_float_to_byte(const cv::Mat& img, cv::Mat& out);
  * @param out imagen de salida.
  * @return la imagen de salida.
  */
-cv::Mat convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out);
+cv::Mat fsiv_convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out);
 
 /**
  * @brief Convierte una imagen en color HSV a BGR.
@@ -37,7 +37,7 @@ cv::Mat convert_bgr_to_hsv(const cv::Mat& img, cv::Mat& out);
  * @param out imagen de salida.
  * @return la imagen de salida.
  */
-cv::Mat convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out);
+cv::Mat fsiv_convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out);
 
 /**
  * @brief Realiza un control del brillo/contraste/gamma de la imagen.
@@ -57,6 +57,6 @@ cv::Mat convert_hsv_to_bgr(const cv::Mat& img, cv::Mat& out);
  * @param only_luma si es true sólo se procesa el canal Luma.
  * @return la imagen procesada.
  */
-cv::Mat cbg_process (const cv::Mat & img, cv::Mat& out,
+cv::Mat fsiv_cbg_process (const cv::Mat & img, cv::Mat& out,
              double contrast=1.0, double brightness=0.0, double gamma=1.0,
              bool only_luma=true);
