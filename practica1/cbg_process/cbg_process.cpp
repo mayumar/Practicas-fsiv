@@ -65,7 +65,25 @@ main (int argc, char* const* argv)
 
 
       //TODO
+      bool interactive = parser.get<bool>("i");
+      bool luma = parser.get<bool>("l");
+      float contrast = parser.get<float>("c");
+      float bright = parser.get<float>("b");
+      float gamma = parser.get<float>("g");
 
+      input = cv::imread(input_name, cv::IMREAD_ANYCOLOR);
+
+      if(input.empty()){
+        std::cerr << "Error: no se ha podido abrir el fichero " << input_name << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      if(!interactive){
+        fsiv_cbg_process(input, output, contrast, bright, gamma, luma);
+      }
+
+      cv::imshow("ORIGINAL", input);
+      cv::imshow("PROCESADA", output);
 
       int key = cv::waitKey(0) & 0xff;
 
