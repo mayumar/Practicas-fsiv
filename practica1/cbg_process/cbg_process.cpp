@@ -32,7 +32,24 @@ const cv::String keys =
     "{@output        |<none>| output image.}"
     ;
 
+int c, c_max = 200;
+int b, b_max = 200;
+int g, g_max = 200;
+int l, l_max = 1;
+cv::Mat input;
+cv::Mat output;
+float contrast;
+float bright;
+float gam;
 
+void on_trackbar(int, void*){
+  contrast = c/100.0;
+  bright = (b/100.0)-1;
+  gam = g/100.0;
+  fsiv_cbg_process(input, output, contrast, bright, gam, l);
+  cv::imshow("PROCESADA", output);
+  
+}
 
 int
 main (int argc, char* const* argv)
@@ -58,8 +75,6 @@ main (int argc, char* const* argv)
           return 0;
       }
 
-      cv::Mat input;
-      cv::Mat output;
       cv::namedWindow("ORIGINAL");
       cv::namedWindow("PROCESADA");
 
@@ -67,8 +82,8 @@ main (int argc, char* const* argv)
       //TODO
       bool interactive = parser.get<bool>("i");
       bool luma = parser.get<bool>("l");
-      float contrast = parser.get<float>("c");
-      float bright = parser.get<float>("b");
+      contrast = parser.get<float>("c");
+      bright = parser.get<float>("b");
       float gamma = parser.get<float>("g");
 
       input = cv::imread(input_name, cv::IMREAD_ANYCOLOR);
@@ -80,6 +95,15 @@ main (int argc, char* const* argv)
 
       if(!interactive){
         fsiv_cbg_process(input, output, contrast, bright, gamma, luma);
+      }else{
+        c = (int)(contrast*100);
+        g = (int)((bright+1)*100);
+        g = (int)(gamma*100);
+        l = (int)luma;
+        cv::createTrackbar("Contrast", "PROCESADA", &c, c_max, on_trackbar);
+        cv::createTrackbar("Bright", "PROCESADA", &b, b_max, on_trackbar);
+        cv::createTrackbar("Gamma", "PROCESADA", &g, g_max, on_trackbar);
+        cv::createTrackbar("Luma", "PROCESADA", &l, l_max, on_trackbar);
       }
 
       cv::imshow("ORIGINAL", input);

@@ -21,9 +21,13 @@ const char * keys =
     "{@background    |<none>| pathname of background image.}"
     ;
 
+int hue, sens;
+cv::Mat foreg, backg;
 
-
-
+void on_trackbar(int, void*){
+    cv::Mat res = fsiv_apply_chroma_key(foreg, backg, hue, sens);
+    cv::imshow("RES", res);
+}
 
 
 int
@@ -41,8 +45,8 @@ main(int argc, char * argv[])
         }
 
         // Get the values
-        int hue = parser.get<int>("h");
-        int sens = parser.get<int>("s");
+        hue = parser.get<int>("h");
+        sens = parser.get<int>("s");
         bool video = parser.get<bool>("v");
         bool camera = parser.get<bool>("c");
         cv::String input = parser.get<cv::String>("@input"); 
@@ -59,7 +63,9 @@ main(int argc, char * argv[])
 
         //DO the work!!.
 
-        cv::Mat backg = cv::imread(background, cv::IMREAD_ANYCOLOR);
+        cv::namedWindow("RES", cv::WINDOW_GUI_EXPANDED);
+
+        backg = cv::imread(background, cv::IMREAD_ANYCOLOR);
 
         if(backg.empty()){
             std::cerr << "Error: no se ha podido abrir el fichero " << background << std::endl;
@@ -68,23 +74,19 @@ main(int argc, char * argv[])
 
         if(!video && !camera){
 
-            cv::Mat foreg = cv::imread(input, cv::IMREAD_ANYCOLOR);
+            foreg = cv::imread(input, cv::IMREAD_ANYCOLOR);
 
             if(foreg.empty()){
                 std::cerr << "Error: no se ha podido abrir el fichero " << input << std::endl;
                 return EXIT_FAILURE;
             }
 
-            cv::Mat res = fsiv_apply_chroma_key(foreg, backg, hue, sens);
-
-            cv::namedWindow("IMG", cv::WINDOW_GUI_EXPANDED);
-
-            cv::imshow("IMG", res);
+            cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
+            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
 
             std::cout << "Pulsa ESC para salir" << std::endl;
             while((cv::waitKey(0) & 0xff) != 27);
 
-            cv::destroyWindow("IMG");
 
         }else if(!camera){
 
@@ -96,21 +98,18 @@ main(int argc, char * argv[])
                 return EXIT_FAILURE;
             }
 
-            cv::namedWindow("VIDEO");
-
             int key = cv::waitKey(0) & 0xff;
-            cv::Mat frame;
-            vidforg >> frame;
+            vidforg >> foreg;
+            cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
+            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
 
-            while(!frame.empty() && key!=27){
-                cv::Mat output = fsiv_apply_chroma_key(frame, backg, hue, sens);
-                cv::imshow("VIDEO", output);
+            while(!foreg.empty() && key!=27){
+                cv::Mat output = fsiv_apply_chroma_key(foreg, backg, hue, sens);
+                cv::imshow("RES", output);
 
                 key = cv::waitKey(25) & 0xff;
-                vidforg >> frame;
+                vidforg >> foreg;
             }
-
-            cv::destroyWindow("VIDEO");
 
         }else{
 
@@ -122,28 +121,28 @@ main(int argc, char * argv[])
                 return EXIT_FAILURE;
             }
 
-            cv::namedWindow("VIDEO");
-
             int key = cv::waitKey(0) & 0xff;
-            cv::Mat frame;
-            camforg >> frame;
+            camforg >> foreg;
 
-            if(frame.empty()){
+            if(foreg.empty()){
                 std::cerr << "Error: no se ha podido abrir la fuente de video" << std::endl;
                 return EXIT_FAILURE;
             }
 
-            while(!frame.empty() && key!=27){
-                cv::Mat output = fsiv_apply_chroma_key(frame, backg, hue, sens);
-                cv::imshow("VIDEO", output);
+            cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
+            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
+
+            while(!foreg.empty() && key!=27){
+                cv::Mat output = fsiv_apply_chroma_key(foreg, backg, hue, sens);
+                cv::imshow("RES", output);
 
                 key = cv::waitKey(25) & 0xff;
-                camforg >> frame;
+                camforg >> foreg;
             }
 
-            cv::destroyWindow("VIDEO");
-
         }
+
+        cv::destroyWindow("RES");
 
     }
     catch (std::exception& e)
