@@ -1,4 +1,4 @@
 show_testfails
 .vscode
 build
-data
+data/
