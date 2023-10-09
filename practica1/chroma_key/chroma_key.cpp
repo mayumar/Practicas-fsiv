@@ -82,7 +82,7 @@ main(int argc, char * argv[])
             }
 
             cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
-            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
+            cv::createTrackbar("Sensivity", "RES", &sens, 255, on_trackbar);
 
             std::cout << "Pulsa ESC para salir" << std::endl;
             while((cv::waitKey(0) & 0xff) != 27);
@@ -101,7 +101,7 @@ main(int argc, char * argv[])
             int key = cv::waitKey(0) & 0xff;
             vidforg >> foreg;
             cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
-            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
+            cv::createTrackbar("Sensivity", "RES", &sens, 255, on_trackbar);
 
             while(!foreg.empty() && key!=27){
                 cv::Mat output = fsiv_apply_chroma_key(foreg, backg, hue, sens);
@@ -130,7 +130,7 @@ main(int argc, char * argv[])
             }
 
             cv::createTrackbar("Hue", "RES", &hue, 255, on_trackbar);
-            cv::createTrackbar("Sensivility", "RES", &sens, 255, on_trackbar);
+            cv::createTrackbar("Sensivity", "RES", &sens, 255, on_trackbar);
 
             while(!foreg.empty() && key!=27){
                 cv::Mat output = fsiv_apply_chroma_key(foreg, backg, hue, sens);
