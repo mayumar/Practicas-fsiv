@@ -6,16 +6,23 @@ En todo caso se activará la trackbar que permite modificar
 el tono y la sensibilidad en el momento.
 
 Aplicar el chroma en una imagen:
-./build/chroma_key <foreground> <background> -v=false -c=false
-Ejemplo:
-./build/chroma_key data/goku01s.jpg data/backgroundDB.jpg -v=false -c=false
+    ./build/chroma_key <foreground> <background> -v=false -c=false
+    Ejemplo:
+    ./build/chroma_key data/goku01s.jpg data/backgroundDB.jpg -v=false -c=false
+
+Aplicar el chroma en una imagen modificando los valores del tono y la sensibilidad por defecto
+    ./build/chroma_key <foreground> <background> -v=false -c=false -h=70 -s=20
+    Ejemplo:
+    ./build/chroma_key data/goku01s.jpg data/backgroundDB.jpg -v=false -c=false -h=70 -s=20
 
 Aplicar el chroma en un vídeo:
-./build/chroma_key <foreground> <background> -v -c=false
-Ejemplo:
-./build/chroma_key data/SpongeBob.mp4 data/backgroundDB.jpg -v -c=false
+    ./build/chroma_key <foreground> <background> -v -c=false
+    Ejemplo:
+    ./build/chroma_key data/SpongeBob.mp4 data/backgroundDB.jpg -v -c=false
 
 Aplicar el chroma utilizando la cámara:
-./build/chroma_key 0 <background> -v=false -c
-Ejemplo:
-./build/chroma_key 0 data/backgroundDB.jpg -v=false -c
+    ./build/chroma_key 0 <background> -v=false -c
+    Ejemplo:
+    ./build/chroma_key 0 data/backgroundDB.jpg -v=false -c
+
+Enlace al vídeo explicación: https://youtu.be/nXKoq2PzVE8
