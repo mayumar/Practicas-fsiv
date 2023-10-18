@@ -10,9 +10,9 @@ cv::Mat fsiv_color_rescaling(const cv::Mat& in, const cv::Scalar& from, const cv
     //Cuidado con dividir por cero.
     //Evita los bucles.
 
-
-
-
+    cv::Scalar conver;
+    cv::divide(to, from, conver);
+    cv::multiply(in, conver, out);
 
     //
     CV_Assert(out.type()==in.type());
@@ -28,7 +28,18 @@ cv::Mat fsiv_wp_color_balance(cv::Mat const& in)
     //Sugerencia: utiliza el espacio de color GRAY para
     //saber la ilumimancia de un pixel.
 
+    cv::Mat inGray;
+    cv::Point maxIdx;
+    double max;
+    cv::cvtColor(in, inGray, cv::COLOR_BGR2GRAY);
 
+    cv::minMaxLoc(inGray, nullptr, &max, nullptr, &maxIdx);
+
+    auto max3 = in.at<cv::Vec3b>(maxIdx);
+    
+    cv::Scalar white(255, 255, 255);
+
+    out = fsiv_color_rescaling(in, max3, white);
 
     //
     CV_Assert(out.type()==in.type());
@@ -42,7 +53,11 @@ cv::Mat fsiv_gw_color_balance(cv::Mat const& in)
     cv::Mat out;
     //TODO
 
+    auto mean = cv::mean(in);
+    
+    cv::Scalar gray(128, 128, 128);
 
+    out = fsiv_color_rescaling(in, mean, gray);
 
     //
     CV_Assert(out.type()==in.type());

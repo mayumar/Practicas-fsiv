@@ -85,7 +85,7 @@ fsiv_create_equalization_lookup_table(const cv::Mat& hist,
 
         naHist.convertTo(lkt, CV_8UC1, 255, 0);
     }
-
+//Range::col() [0,mediana) [mediana, 256)
     //
 
     CV_Assert(lkt.type()==CV_8UC1);
