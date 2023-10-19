@@ -2,6 +2,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 
+#include <opencv2/highgui.hpp>
+
 cv::Mat fsiv_color_rescaling(const cv::Mat& in, const cv::Scalar& from, const cv::Scalar& to)
 {
     CV_Assert(in.type()==CV_8UC3);
@@ -73,6 +75,27 @@ cv::Mat fsiv_color_balance(cv::Mat const& in, float p)
     //TODO
     //Sugerencia: utiliza el espacio de color GRAY para
     //saber la ilumimancia de un pixel.
+
+    //In range para sacar una mascara
+    //La mascara se puede usar en mean
+    
+    cv::Mat inGray;
+    cv::cvtColor(in, inGray, cv::COLOR_BGR2GRAY);
+
+    double max;
+    cv::minMaxLoc(inGray, nullptr, &max);
+
+    auto min = max*(1-(p/100));
+
+    cv::Mat mask;
+    cv::inRange(inGray, min, max, mask);
+
+    mask.convertTo(mask, CV_8UC3);
+
+    auto mean = cv::mean(in, mask);
+    cv::Scalar white(255, 255, 255);
+
+    out = fsiv_color_rescaling(in, mean, white);
 
 
     //
