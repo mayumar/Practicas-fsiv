@@ -75,22 +75,29 @@ cv::Mat fsiv_color_balance(cv::Mat const& in, float p)
     //TODO
     //Sugerencia: utiliza el espacio de color GRAY para
     //saber la ilumimancia de un pixel.
-
-    //In range para sacar una mascara
-    //La mascara se puede usar en mean
     
     cv::Mat inGray;
     cv::cvtColor(in, inGray, cv::COLOR_BGR2GRAY);
 
+    cv::Mat hist;
+    int hist_size = 256;
+    float channel[] = {0, 256};
+    const float * ranges[] = {channel};
+    cv::calcHist(&inGray, 1, 0, cv::Mat(), hist, 1, &hist_size, ranges);
+    cv::normalize(hist, hist, 1.0, 0.0, cv::NORM_L1);
+
+    int i = 0;
+    float percent = 1.0 - (p/100.0), accum = 0.0;
+    while(i < hist.rows && percent >= accum){
+        accum += hist.at<float>(i);
+        i++;
+    }
+
     double max;
     cv::minMaxLoc(inGray, nullptr, &max);
 
-    auto min = max*(1-(p/100));
-
     cv::Mat mask;
-    cv::inRange(inGray, min, max, mask);
-
-    mask.convertTo(mask, CV_8UC3);
+    cv::inRange(inGray, i, max, mask);
 
     auto mean = cv::mean(in, mask);
     cv::Scalar white(255, 255, 255);
