@@ -63,7 +63,10 @@ void on_mouse (int event, int x, int y, int flags, void * user_data_)
         //Si el usuario  pulsan con el ratón, recoger el color de ese
         //punto y re-escalar el color de la imagen de forma que el color
         //seleccionado sea el nuevo blanco.
+        auto color = user_data->input.at<cv::Vec3b>(cv::Point(x,y));
+        user_data->output = fsiv_color_rescaling(user_data->input, color, cv::Scalar(255, 255, 255));
 
+        cv::imshow("OUTPUT", user_data->output);
         //
     }
 }
@@ -86,7 +89,15 @@ void on_change(int v, void * user_data_)
     //  v==100 sería aplicar el criterio GrayWorld.
     //  Para valores intermedios usar el nivel médio de los p% valores
     //  más brillantes para escalar a blanco puro.
+    if(v == 0){
+        user_data->output = fsiv_wp_color_balance(user_data->input);
+    }else if(v == 100){
+        user_data->output = fsiv_gw_color_balance(user_data->input);
+    }else{
+        user_data->output = fsiv_color_balance(user_data->input, v);
+    }
 
+    cv::imshow("OUTPUT", user_data->output);
 
     //
 }
@@ -124,7 +135,8 @@ main (int argc, char* const* argv)
 
         //TODO
         //Carga la imagen de entrada;
-
+        
+        input = cv::imread(input_n);
 
         //
 
@@ -152,6 +164,13 @@ main (int argc, char* const* argv)
             //  Para valores intermedios usar el nivel médio de los P% valores
             //  más brillantes para escalar a blanco puro.
 
+            if(p == 0){
+                output = fsiv_wp_color_balance(input);
+            }else if(p == 100){
+                output = fsiv_gw_color_balance(input);
+            }else{
+                output = fsiv_color_balance(input, p);
+            }
 
             //
         }
@@ -165,6 +184,9 @@ main (int argc, char* const* argv)
             //TODO
             //Almacena la imagen.
 
+            if(!cv::imwrite(output_n, output)){
+                std::cout << "Error: could not save the result in file '" << output_n << "'" << std::endl;
+            }
 
             //
         }
