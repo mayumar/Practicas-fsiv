@@ -71,9 +71,19 @@ main (int argc, char* const* argv)
 
       //TODO
 
+      if(input.channels() == 1){
+        fsiv_image_equalization(input, output, hold_median, radius);
+      }else{
+        cv::Mat aux;
+        cv::cvtColor(input, aux, cv::COLOR_BGR2HSV);
 
+        std::vector<cv::Mat> channels;
+        cv::split(aux, channels);
+        fsiv_image_equalization(channels[2], channels[2], hold_median, radius);
+        cv::merge(channels, aux);
 
-
+        cv::cvtColor(aux, output, cv::COLOR_HSV2BGR);
+      }
 
       //
 
