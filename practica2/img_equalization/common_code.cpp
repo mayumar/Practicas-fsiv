@@ -76,16 +76,36 @@ fsiv_create_equalization_lookup_table(const cv::Mat& hist,
     //Usa las funciones fsiv_normalize_histogram y fsiv_accumulate_histogram
     //para construir la tabla.
 
+    cv::Mat naHist;
+    hist.copyTo(naHist);
+
+    fsiv_normalize_histogram(naHist);
+    fsiv_accumulate_histogram(naHist);
+    
     if(!hold_median){
-        cv::Mat naHist;
-        hist.copyTo(naHist);
-
-        fsiv_normalize_histogram(naHist);
-        fsiv_accumulate_histogram(naHist);
-
         naHist.convertTo(lkt, CV_8UC1, 255, 0);
+    }else{
+        int median = 0;
+        float val = 0;
+
+        while(val < 0.5 && median < 256){
+            median++;
+            val = naHist.at<float>(median);
+        }
+
+        cv::Range first_half(0, median), second_half(median, 256);
+
+        naHist(first_half, cv::Range::all()) /= val;
+        naHist(first_half, cv::Range::all()) *= median;
+
+        naHist(second_half, cv::Range::all()) -= val;
+        naHist(second_half, cv::Range::all()) /= 1-val;
+        naHist(second_half, cv::Range::all()) *= 255-median;
+        naHist(second_half, cv::Range::all()) += median;
+
+        naHist.convertTo(lkt, CV_8UC1);
     }
-//Range::col() [0,mediana) [mediana, 256)
+
     //
 
     CV_Assert(lkt.type()==CV_8UC1);
@@ -122,24 +142,27 @@ fsiv_image_equalization(const cv::Mat& in, cv::Mat& out,
     //Recuerda: cuando radius>0, la zona no procesada de la entrada se deja
     //   con los mismos valores en la salida.
     cv::Mat hist;
-    fsiv_compute_histogram(in, hist);
     
     if(radius == 0){
+        fsiv_compute_histogram(in, hist);
         cv::Mat lut = fsiv_create_equalization_lookup_table(hist, hold_median);
         fsiv_apply_lookup_table(in, lut, out);
     }else{
+        in.copyTo(out);
 
-        for(int x = 0; x < (in.rows-2*radius+1); x++){
-            for(int y = 0; y < (in.rows-2*radius+1); y++){
-                cv::Range rangex(x, x+2*radius+1);
-                cv::Range rangey(y, y+2*radius+1);
+        for(int x = 0; x <= (in.rows-(2*radius+1)); x++){
+            for(int y = 0; y <= (in.cols-(2*radius+1)); y++){
+                cv::Range rangex(x, x+(2*radius+1));
+                cv::Range rangey(y, y+(2*radius+1));
                 cv::Mat ventana = in(rangex, rangey);
+            
+                fsiv_compute_histogram(ventana, hist);
 
-                cv::Mat lut = fsiv_create_equalization_lookup_table(ventana, hold_median);
+                cv::Mat lut = fsiv_create_equalization_lookup_table(hist, hold_median);
 
-                float res = lut.at<float>(in.at<float>(x+radius, y+radius), 0);
+                float res = lut.at<uchar>(in.at<uchar>(x+radius, y+radius));
 
-                out.at<float>(x+radius, y+radius) = res;
+                out.at<uchar>(x+radius, y+radius) = res;
                 
             }
         }
