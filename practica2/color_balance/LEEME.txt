@@ -1,0 +1,27 @@
+Equilibrado del color
+
+Se han resuelto todos los apartados propuestos, tanto los test como el programa principal.
+
+Se asume que el programa se ejecuta desde el directorio build/
+
+Aplicación "White patch" en modo CLI:
+    ./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=0
+    Ejemplo:
+./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=0
+
+Aplicación "White patch" con el 10% en modo CLI:
+    ./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=10
+    Ejemplo:
+./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=10
+
+Aplicación "Gray world" en modo CLI:
+    ./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=100
+    Ejemplo:
+./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -p=100
+
+Modo interactivo:
+    ./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -i
+    Ejemplo:
+./color_balance ../data/manos_sin_balance3.jpg ../data/out.jpg -i
+
+Enlace al vídeo explicación: https://youtu.be/juLYHzVMXFY
