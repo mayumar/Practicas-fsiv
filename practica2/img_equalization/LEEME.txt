@@ -2,38 +2,36 @@ Ecualización de la imagen digital.
 
 Se han resuelto todos los apartados propuestos, tanto los test como el programa principal.
 
-Se asume que el programa se ejecuta desde el directorio build/
-
 Para aplicar una equalizacion global:
-    ./img_equalization <input> <output>
+    ./build/img_equalization <input> <output>
 
     Ejemplo imagen blanco y negro:
-        ./img_equalization ../data/radiografia.png ../data/out.png
+        ./build/img_equalization data/radiografia.png data/out.png
     Ejemplo imagen a color:
-        ./img_equalization ../data/cells.png ../data/out.png
+        ./build/img_equalization data/cells.png data/out.png
 
 Para aplicar una equalizacion local (radio de ventana 25):
-    ./img_equalization <input> <output> -r=25
+    ./build/img_equalization <input> <output> -r=25
 
     Ejemplo imagen blanco y negro:
-        ./img_equalization ../data/radiografia.png ../data/out.png -r=25
+        ./build/img_equalization data/radiografia.png data/out.png -r=25
     Ejemplo imagen a color:
-        ./img_equalization ../data/cells.png ../data/out.png -r=25
+        ./build/img_equalization data/cells.png data/out.png -r=25
 
 Para aplicar una equalizacion bimodal:
-    ./img_equalization <input> <output> -m
+    ./build/img_equalization <input> <output> -m
 
     Ejemplo imagen blanco y negro:
-        ./img_equalization ../data/radiografia.png ../data/out.png -m
+        ./build/img_equalization data/radiografia.png data/out.png -m
     Ejemplo imagen a color:
-        ./img_equalization ../data/cells.png ../data/out.png -m
+        ./build/img_equalization data/cells.png data/out.png -m
 
 Para aplicar una equalizacion local y bimodal:
-    ./img_equalization <input> <output> -r=25 -m
+    ./build/img_equalization <input> <output> -r=25 -m
 
     Ejemplo imagen blanco y negro:
-        ./img_equalization ../data/radiografia.png ../data/out.png -r=25 -m
+        ./build/img_equalization data/radiografia.png data/out.png -r=25 -m
     Ejemplo imagen a color:
-        ./img_equalization ../data/cells.png ../data/out.png -r=25 -m
+        ./build/img_equalization data/cells.png data/out.png -r=25 -m
 
 Enlace al vídeo explicación: https://youtu.be/UZ0bVsnUB50
