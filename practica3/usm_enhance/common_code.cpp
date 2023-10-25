@@ -7,7 +7,9 @@ fsiv_create_box_filter(const int r)
     cv::Mat ret_v;
     // TODO
     // Hint: use the constructor of cv::Mat to set the proper initial value.
-
+    std::vector<int> sizes = {2*r+1, 2*r+1};
+    int nele = (2*r+1) * (2*r+1);
+    ret_v = cv::Mat(sizes, CV_32FC1, 1.0/(nele));
     //
     CV_Assert(ret_v.type()==CV_32FC1);
     CV_Assert(ret_v.rows==(2*r+1) && ret_v.rows==ret_v.cols);
@@ -23,8 +25,18 @@ fsiv_create_gaussian_filter(const int r)
     // TODO
     // Remember: 6*sigma is approx 99,73% of the distribution.
     // Remember: scale the filter coefficients to sum 1.
+    std::vector<int> sizes = {2*r+1, 2*r+1};
+    ret_v = cv::Mat(sizes, CV_32FC1);
 
+    float sigma = (2*r+1)/6.0;
+    for(int i = 0; i < 2*r+1; i++){
+        for(int j = 0; j < 2*r+1; j++){
+            float eq = (1.0/(sigma*sigma*2.0*M_PI)) * exp(-(pow(i-r,2)+pow(j-r,2))/(2.0*sigma*sigma));
+            ret_v.at<float>(cv::Point(i,j)) = eq;
+        }
+    }
 
+    ret_v /= cv::sum(ret_v);
     //
     CV_Assert(ret_v.type()==CV_32FC1);
     CV_Assert(ret_v.rows==(2*r+1) && ret_v.rows==ret_v.cols);
@@ -41,6 +53,12 @@ fsiv_fill_expansion(cv::Mat const& in, const int r)
     //TODO:
     //Use of cv::copyMakeBorder is not allowed.
     //Hint you don't need use any for sentence.
+    ret_v = cv::Mat::zeros(in.rows+2*r, in.cols+2*r, in.type());
+
+    cv::Range rows(r, r+in.rows);
+    cv::Range cols(r, r+in.cols);
+
+    in.copyTo(ret_v(rows, cols));
 
     //
     CV_Assert(ret_v.type()==in.type());
@@ -59,7 +77,9 @@ fsiv_circular_expansion(cv::Mat const& in, const int r)
     // Use of cv::copyMakeBorder is not allowed.
     // Hint you don't need use any "for" sentence, only 9 copyTo from "in"
     // rois to "ret_v" rois.
+    ret_v = cv::Mat::zeros(in.rows+2*r, in.cols+2*r, in.type());
 
+    //in(cv::Rect(0,0,in.cols,r)).copyTo(ret_v(cv::Rect(r, ret_v.rows-r, in.cols,r)));
 
     //
     CV_Assert(ret_v.type()==in.type());
