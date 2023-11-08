@@ -79,7 +79,18 @@ fsiv_circular_expansion(cv::Mat const& in, const int r)
     // rois to "ret_v" rois.
     ret_v = cv::Mat::zeros(in.rows+2*r, in.cols+2*r, in.type());
 
-    //in(cv::Rect(0,0,in.cols,r)).copyTo(ret_v(cv::Rect(r, ret_v.rows-r, in.cols,r)));
+    in(cv::Rect(0,in.rows-r,in.cols,r)).copyTo(ret_v(cv::Rect(r, 0, in.cols,r)));
+    in(cv::Rect(0,0,in.cols,r)).copyTo(ret_v(cv::Rect(r,ret_v.rows-r, in.cols,r)));
+
+    in(cv::Rect(in.cols-r,0,r,in.rows)).copyTo(ret_v(cv::Rect(0,r,r,in.rows)));
+    in(cv::Rect(0,0,r,in.rows)).copyTo(ret_v(cv::Rect(ret_v.cols-r,r,r,in.rows)));
+
+    in(cv::Rect(in.cols-r,in.rows-r,r,r)).copyTo(ret_v(cv::Rect(0,0,r,r)));
+    in(cv::Rect(0,in.rows-r,r,r)).copyTo(ret_v(cv::Rect(ret_v.cols-r,0,r,r)));
+    in(cv::Rect(in.cols-r,0,r,r)).copyTo(ret_v(cv::Rect(0,ret_v.rows-r,r,r)));
+    in(cv::Rect(0,0,r,r)).copyTo(ret_v(cv::Rect(ret_v.cols-r,ret_v.rows-r,r,r)));
+
+    in.copyTo(ret_v(cv::Rect(r,r,in.cols,in.rows)));
 
     //
     CV_Assert(ret_v.type()==in.type());
@@ -106,6 +117,17 @@ fsiv_filter2D(cv::Mat const& in, cv::Mat const& filter)
     // TODO
     // Remember: use of cv::filter2D is not allowed.
 
+    //No se puede aplicar a los pixeles exteriores
+    ret_v = cv::Mat::zeros(in.rows-filter.rows, in.cols-filter.rows, in.type());
+
+    for(int i = 0; i < ret_v.rows; i++){
+        for(int j = 0; j < ret_v.cols; j++){
+            //La suma de cada uno de los pieles del filtro * los de in en esa ventana
+            ret_v.at<float>(i,j) = sum(filter.mul(in(cv::Rect(i, j, filter.cols, filter.rows)))).val[0];
+        }
+    }
+
+    
 
     //
     CV_Assert(ret_v.type()==CV_32FC1);
