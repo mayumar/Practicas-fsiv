@@ -32,6 +32,116 @@ const cv::String keys =
     "{@output        |<none>| output image.}"
     ;
 
+struct UserData
+{
+    cv::Mat input;
+    cv::Mat output;
+    cv::Mat mask;
+    int r;
+    int g;
+    int circular;
+    int filter_type;
+};
+
+void on_change_r(int r, void * user_data_){
+    UserData * user_data = static_cast<UserData*>(user_data_);
+    user_data->r = r;
+
+    cv::Mat in_convert;
+    (user_data->input).convertTo(in_convert, CV_32FC1, 1/255.0);
+    if((user_data->input).channels() == 3){
+        cv::Mat in_hsv;
+        cv::cvtColor(in_convert, in_hsv, cv::COLOR_BGR2HSV);
+
+        std::vector<cv::Mat> channels;
+        cv::split(in_hsv, channels);
+        channels[2] = fsiv_usm_enhance(channels[2], (user_data->g)/100.0, r, user_data->filter_type, user_data->circular, &(user_data->mask));
+        cv::merge(channels, in_hsv);
+
+        cv::cvtColor(in_hsv, user_data->output, cv::COLOR_HSV2BGR);
+
+    }else{
+        user_data->output = fsiv_usm_enhance(in_convert, (user_data->g)/100.0, r, user_data->filter_type, user_data->circular, &(user_data->mask));
+    }
+
+    cv::imshow("OUTPUT", user_data->output);
+    cv::imshow("UNSHARP MASK", user_data->mask);
+}
+
+void on_change_g(int g, void * user_data_){
+    UserData * user_data = static_cast<UserData*>(user_data_);
+    user_data->g = g;
+
+    cv::Mat in_convert;
+    (user_data->input).convertTo(in_convert, CV_32FC1, 1/255.0);
+    if((user_data->input).channels() == 3){
+        cv::Mat in_hsv;
+        cv::cvtColor(in_convert, in_hsv, cv::COLOR_BGR2HSV);
+
+        std::vector<cv::Mat> channels;
+        cv::split(in_hsv, channels);
+        channels[2] = fsiv_usm_enhance(channels[2], g/100, user_data->r, user_data->filter_type, user_data->circular, &(user_data->mask));
+        cv::merge(channels, in_hsv);
+
+        cv::cvtColor(in_hsv, user_data->output, cv::COLOR_HSV2BGR);
+
+    }else{
+        user_data->output = fsiv_usm_enhance(in_convert, g/100, user_data->r, user_data->filter_type, user_data->circular, &(user_data->mask));
+    }
+
+    cv::imshow("OUTPUT", user_data->output);
+    cv::imshow("UNSHARP MASK", user_data->mask);
+}
+
+void on_change_c(int circular, void * user_data_){
+    UserData * user_data = static_cast<UserData*>(user_data_);
+    user_data->circular = circular;
+
+    cv::Mat in_convert;
+    (user_data->input).convertTo(in_convert, CV_32FC1, 1/255.0);
+    if((user_data->input).channels() == 3){
+        cv::Mat in_hsv;
+        cv::cvtColor(in_convert, in_hsv, cv::COLOR_BGR2HSV);
+
+        std::vector<cv::Mat> channels;
+        cv::split(in_hsv, channels);
+        channels[2] = fsiv_usm_enhance(channels[2], (user_data->g)/100.0, user_data->r, user_data->filter_type, circular, &(user_data->mask));
+        cv::merge(channels, in_hsv);
+
+        cv::cvtColor(in_hsv, user_data->output, cv::COLOR_HSV2BGR);
+
+    }else{
+        user_data->output = fsiv_usm_enhance(in_convert, (user_data->g)/100.0, user_data->r, user_data->filter_type, circular, &(user_data->mask));
+    }
+
+    cv::imshow("OUTPUT", user_data->output);
+    cv::imshow("UNSHARP MASK", user_data->mask);
+}
+
+void on_change_f(int filter_type, void * user_data_){
+    UserData * user_data = static_cast<UserData*>(user_data_);
+    user_data->filter_type = filter_type;
+
+    cv::Mat in_convert;
+    (user_data->input).convertTo(in_convert, CV_32FC1, 1/255.0);
+    if((user_data->input).channels() == 3){
+        cv::Mat in_hsv;
+        cv::cvtColor(in_convert, in_hsv, cv::COLOR_BGR2HSV);
+
+        std::vector<cv::Mat> channels;
+        cv::split(in_hsv, channels);
+        channels[2] = fsiv_usm_enhance(channels[2], (user_data->g)/100.0, user_data->r, filter_type, user_data->circular, &(user_data->mask));
+        cv::merge(channels, in_hsv);
+
+        cv::cvtColor(in_hsv, user_data->output, cv::COLOR_HSV2BGR);
+
+    }else{
+        user_data->output = fsiv_usm_enhance(in_convert, (user_data->g)/100.0, user_data->r, filter_type, user_data->circular, &(user_data->mask));
+    }
+
+    cv::imshow("OUTPUT", user_data->output);
+    cv::imshow("UNSHARP MASK", user_data->mask);
+}
 
 int
 main (int argc, char* const* argv)
@@ -61,7 +171,11 @@ main (int argc, char* const* argv)
         int filter_type=1;
         bool circular =false;
 
-
+        bool i = parser.get<bool>("interactive");
+        g = parser.get<double>("gain");
+        r = parser.get<int>("radius");
+        filter_type = parser.get<int>("filter");
+        circular = parser.get<bool>("circular");
 
         //
 
@@ -80,8 +194,44 @@ main (int argc, char* const* argv)
         cv::namedWindow("OUTPUT");
         cv::namedWindow("UNSHARP MASK");
 
+        //
+        UserData user_data;
 
-        out = fsiv_usm_enhance(in, g, r, filter_type, circular, &mask);
+        if(!i){
+            cv::Mat in_convert;
+            in.convertTo(in_convert, CV_32FC1, 1/255.0);
+
+            if(in.channels() == 3){
+                cv::Mat in_hsv;
+                cv::cvtColor(in_convert, in_hsv, cv::COLOR_BGR2HSV);
+        
+                std::vector<cv::Mat> channels;
+                cv::split(in_hsv, channels);
+                channels[2] = fsiv_usm_enhance(channels[2], g, r, filter_type, circular, &mask);
+                cv::merge(channels, in_hsv);
+
+                cv::cvtColor(in_hsv, out, cv::COLOR_HSV2BGR);
+
+            }else{
+                out = fsiv_usm_enhance(in_convert, g, r, filter_type, circular, &mask);
+            }
+        }else{
+            user_data.input = in;
+            user_data.output = out;
+            user_data.r = r;
+            int g_int = (int)g*100;
+            user_data.g = g_int;
+            int circular_int = (int)circular;
+            user_data.circular = circular_int;
+            user_data.filter_type = filter_type;
+            user_data.mask = mask;
+            cv::createTrackbar("R", "INPUT", &r, 100, on_change_r, &user_data);
+            cv::createTrackbar("G", "INPUT", &g_int, 500, on_change_g, &user_data);
+            cv::createTrackbar("C", "INPUT", &circular_int, 1, on_change_c, &user_data);
+            cv::createTrackbar("F", "INPUT", &filter_type, 1, on_change_f, &user_data);
+        }
+        //
+        //out = fsiv_usm_enhance(in, g, r, filter_type, circular, &mask);
 
 
         cv::imshow ("INPUT", in);
