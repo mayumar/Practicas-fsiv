@@ -118,16 +118,14 @@ fsiv_filter2D(cv::Mat const& in, cv::Mat const& filter)
     // Remember: use of cv::filter2D is not allowed.
 
     //No se puede aplicar a los pixeles exteriores
-    ret_v = cv::Mat::zeros(in.rows-filter.rows, in.cols-filter.rows, in.type());
+    ret_v = cv::Mat::zeros(in.rows-2*(filter.rows/2), in.cols-2*(filter.rows/2), in.type());
 
     for(int i = 0; i < ret_v.rows; i++){
         for(int j = 0; j < ret_v.cols; j++){
             //La suma de cada uno de los pieles del filtro * los de in en esa ventana
-            ret_v.at<float>(i,j) = sum(filter.mul(in(cv::Rect(i, j, filter.cols, filter.rows)))).val[0];
+            ret_v.at<float>(i,j) = sum(filter.mul(in(cv::Rect(j, i, filter.cols, filter.rows)))).val[0];
         }
     }
-
-    
 
     //
     CV_Assert(ret_v.type()==CV_32FC1);
@@ -147,7 +145,7 @@ fsiv_combine_images(const cv::Mat src1, const cv::Mat src2,
     
     //TODO
     // Remember: use vectorized code.
-
+    ret_v = a*src1 + b*src2;
 
     //
     CV_Assert(ret_v.type()==src2.type());
@@ -170,8 +168,27 @@ fsiv_usm_enhance(cv::Mat  const& in, double g, int r,
     // Remember: use your own functions fsiv_xxxx
     // Remember: when unsharp_mask pointer is nullptr, means don't save the
     // unsharp mask on in.
+    cv::Mat filter, in_exp;
 
+    if(filter_type == 0){
+        filter = fsiv_create_box_filter(r);
+    }else{
+        filter = fsiv_create_gaussian_filter(r);
+    }
 
+    if(circular){
+        in_exp = fsiv_circular_expansion(in, r);
+    }else{
+        in_exp = fsiv_fill_expansion(in, r);
+    }
+
+    auto in_low = fsiv_filter2D(in_exp, filter);
+
+    if(unsharp_mask != nullptr){
+        *unsharp_mask = in_low;
+    }
+
+    ret_v = fsiv_combine_images(in, in_low, 1+g, -g); //O=(g+1)I-gIL
 
 
     //
