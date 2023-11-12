@@ -118,20 +118,31 @@ fsiv_image_sharpening(const cv::Mat& in, int filter_type, bool only_luma,
     // Hint: use cv::filter2D using cv::BORDER_ISOLATED.
     // Remember: if circular, first the input image must be circular extended,
     //  and then clip the result.
+    auto filter = fsiv_create_sharpening_filter(filter_type, r1, r2);
+    
     if(!only_luma){
         cv::Mat in_ext;
         in.copyTo(in_ext);
 
-        if(circular){
-            in_ext = fsiv_extend_image(in, cv::Size(in.cols+(2*r2), in.rows+(2*r2)), 1);
-        }else{
-            in_ext = fsiv_extend_image(in, cv::Size(in.cols+(2*r2), in.rows+(2*r2)), 0);
-        }
+        in_ext = fsiv_extend_image(in, cv::Size(in.cols+(2*r2), in.rows+(2*r2)), circular);
 
-        auto filter = fsiv_create_sharpening_filter(filter_type, r1, r2);
         cv::Mat out_ext;
         cv::filter2D(in_ext, out_ext, -1, filter, cv::Point(-1,-1), (0.0), cv::BORDER_ISOLATED);
         out = out_ext(cv::Rect(r2, r2, in.cols, in.rows));
+    }else{
+        cv::Mat in_hsv;
+        cv::cvtColor(in, in_hsv, cv::COLOR_BGR2HSV);
+        std::vector<cv::Mat> channels;
+        cv::split(in_hsv, channels);
+
+        channels[2] = fsiv_extend_image(channels[2], cv::Size(in.cols+(2*r2), in.rows+(2*r2)), circular);
+
+        cv::filter2D(channels[2], channels[2], -1, filter, cv::Point(-1,-1), (0.0), cv::BORDER_ISOLATED);
+        channels[2] = channels[2](cv::Rect(r2, r2, in.cols, in.rows));
+
+        cv::merge(channels, out);
+
+        cv::cvtColor(out, out, cv::COLOR_HSV2BGR);
     }
 
     //
