@@ -1,0 +1,25 @@
+Realce usando máscara de desenfoque (Unsharp Mask).
+
+Se han resuelto todos los apartados propuestos, tanto los test como el programa principal.
+
+Aplicación de un filtro caja de radio 60 y sin expansión circular, resultado con ganancia de 1.5:
+    ./usm_enhance <input> <output> -r=60 -g=1.5
+    Ejemplo:
+    ./usm_enhance ../data/radiografia.png out.jpg -r=60 -g=1.5
+
+Aplicación de un filtro gaussiano de radio 60 y expansión circular, resultado con ganancia de 1.5:
+    ./usm_enhance <input> <output> -f=1 -r=60 -c -g=1.5
+    Ejemplo:
+    ./usm_enhance ../data/radiografia.png out.jpg -f=1 -r=60 -c -g=1.5
+
+Aplicación de un filtro gaussiano con radio 7 y expansión circular, resultado con ganancia de 2.0 en imagen RGB:
+    ./usm_enhance <input_RGB> <output> -f=1 -r=7 -c -g=2.0
+    Ejemplo:
+    ./usm_enhance ../data/ciclista_original.jpg out.jpg -f=1 -r=7 -c -g=2.0
+
+Modo interactivo:
+    ./usm_enhance <input> <output> -i
+    Ejemplo escala de grises:
+        ./usm_enhance ../data/radiografia.png out.jpg -i
+    Ejemplo RGB:
+        ./usm_enhance ../data/ciclista_original.jpg out.jpg -i
