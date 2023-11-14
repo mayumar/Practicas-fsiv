@@ -3,28 +3,28 @@ Realce usando máscara de enfoque (Sharpening).
 Se han resuelto todos los apartados propuestos, tanto los test como el programa principal.
 
 Aplicación utilizando filtro laplaciano de 4 puntos, sin expansión circular y a todos los canales si RGB:
-    ./sharpen <input> <output> -i=f -l=f -c=f
+    ./build/sharpen <input> <output> -i=f -l=f -c=f
     Ejemplo:
-    ./sharpen ../data/ciclista_original.jpg out.jpg -i=f -l=f -c=f
+    ./build/sharpen data/ciclista_original.jpg out.jpg -i=f -l=f -c=f
 
 Aplicación utilizando filtro laplaciano de 8 puntos, con expansión circular y a todos los canales si RGB:
-    ./sharpen <input> <output> -f=1 -i=f -l=f -c
+    ./build/sharpen <input> <output> -f=1 -i=f -l=f -c
     Ejemplo:
-    ./sharpen ../data/ciclista_original.jpg out.jpg -f=1 -i=f -l=f -c
+    ./build/sharpen data/ciclista_original.jpg out.jpg -f=1 -i=f -l=f -c
 
 Aplicación utilizando filtro DoG con r1=2.0 y r2=3.0, con expansión circular y a todos los canales si RGB:
-    ./sharpen <input> <output> -f=2 -i=f -l=f -c -r1=2.0 -r2=3.0
+    ./build/sharpen <input> <output> -f=2 -i=f -l=f -c -r1=2.0 -r2=3.0
     Ejemplo:
-    ./sharpen ../data/ciclista_original.jpg out.jpg -f=1 -i=f -l=f -c -r1=2.0 -r2=3.0
+    ./build/sharpen data/ciclista_original.jpg out.jpg -f=1 -i=f -l=f -c -r1=2.0 -r2=3.0
 
 Aplicación utilizando filtro laplaciano de 4 puntos, con expansión circular y solo en brillo:
-    ./sharpen <input> <output> -i=f -l -c
+    ./build/sharpen <input> <output> -i=f -l -c
     Ejemplo:
-    ./sharpen ../data/ciclista_original.jpg out.jpg -i=f -l -c
+    ./build/sharpen data/ciclista_original.jpg out.jpg -i=f -l -c
 
 Modo interactivo:
-    ./sharpen <input> <output> -i -l=f -c=f
+    ./build/sharpen <input> <output> -i -l=f -c=f
     Ejemplo:
-    ./sharpen ../data/ciclista_original.jpg out.jpg -i -l=f -c=f
+    ./build/sharpen data/ciclista_original.jpg out.jpg -i -l=f -c=f
 
-Enlace al vídeo explicación: 
+Enlace al vídeo explicación: https://youtu.be/M9tV-OmItjU
