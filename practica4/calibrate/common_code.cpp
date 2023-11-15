@@ -11,7 +11,11 @@ fsiv_generate_3d_calibration_points(const cv::Size& board_size,
     //TODO
     //Remenber: the first inner point has (1,1) in board coordinates.
 
-
+    for(int i = 1; i <= board_size.height; i++){
+        for(int j = 1; j <= board_size.width; j++){
+            ret_v.push_back(cv::Point3f(square_size*j, square_size*i, 0.0));
+        }
+    }
     //
     CV_Assert(ret_v.size()==static_cast<size_t>(board_size.width*board_size.height));
     return ret_v;
@@ -27,7 +31,18 @@ fsiv_find_chessboard_corners(const cv::Mat& img, const cv::Size &board_size,
     bool was_found = false;
     //TODO
 
+    was_found = cv::findChessboardCorners(img, board_size, corner_points);
 
+    if(was_found){
+        cv::Mat img_gray;
+        cv::cvtColor(img, img_gray, cv::COLOR_BGR2GRAY);
+        cv::cornerSubPix(img_gray, corner_points, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria());
+    }
+
+    if(wname != nullptr){
+        cv::namedWindow(wname);
+        cv::imshow(wname, img);
+    }
 
     //
     return was_found;
@@ -46,7 +61,13 @@ fsiv_calibrate_camera(const std::vector<std::vector<cv::Point2f>>& _2d_points,
     float error=0.0;
     //TODO
 
+    if(rvecs == nullptr && tvecs == nullptr){
+        rvecs = new std::vector<cv::Mat>();
+        tvecs = new std::vector<cv::Mat>();
+    }
 
+    error = cv::calibrateCamera(_3d_points, _2d_points, camera_size, camera_matrix, dist_coeffs, *rvecs, *tvecs);
+    
     //
     CV_Assert(camera_matrix.rows==camera_matrix.cols &&
               camera_matrix.rows == 3 &&
@@ -68,6 +89,7 @@ void fsiv_compute_camera_pose(const std::vector<cv::Point3f> &_3dpoints,
     CV_Assert(_3dpoints.size()>=4 && _3dpoints.size()==_2dpoints.size());
     //TODO
 
+    cv::solvePnP(_3dpoints, _2dpoints, camera_matrix, dist_coeffs, rvec, tvec);
 
     //
     CV_Assert(rvec.rows==3 && rvec.cols==1 && rvec.type()==CV_64FC1);
@@ -82,6 +104,16 @@ fsiv_draw_axes(cv::Mat& img,
 {
     //TODO
 
+    std::vector<cv::Point3f> _3d_points = {cv::Point3f(0,0,0), cv::Point3f(size,0,0),
+                                           cv::Point3f(0,size,0), cv::Point3f(0,0,-size)};
+    std::vector<cv::Point2f> _2d_points;
+
+
+    cv::projectPoints(_3d_points, rvec, tvec, camera_matrix, dist_coeffs, _2d_points);
+
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[1], cv::Scalar(0,0,255), line_width);
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[2], cv::Scalar(0,255,0), line_width);
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[3], cv::Scalar(255,0,0), line_width);
 
     //
 }
@@ -102,6 +134,13 @@ fsiv_save_calibration_parameters(cv::FileStorage& fs,
     CV_Assert(tvec.type()==CV_64FC1 && tvec.rows==3 && tvec.cols==1);
     //TODO
 
+    fs.write("image-width", camera_size.width);
+    fs.write("image-height", camera_size.height);
+    fs.write("error", error);
+    fs.write("camera-matrix", camera_matrix);
+    fs.write("distortion-coefficients", dist_coeffs);
+    fs.write("rvec", rvec);
+    fs.write("tvec", tvec);
 
     //
     CV_Assert(fs.isOpened());
@@ -120,6 +159,13 @@ fsiv_load_calibration_parameters(cv::FileStorage &fs,
     CV_Assert(fs.isOpened());
     //TODO
 
+    fs["image-width"] >> camera_size.width;
+    fs["image-height"] >> camera_size.height;
+    fs["error"] >> error;
+    fs["camera-matrix"] >> camera_matrix;
+    fs["distortion-coefficients"] >> dist_coeffs;
+    fs["rvec"] >> rvec;
+    fs["tvec"] >> tvec;
 
     //
     CV_Assert(fs.isOpened());
@@ -139,6 +185,7 @@ fsiv_undistort_image(const cv::Mat& input, cv::Mat& output,
     //Hint: use cv::undistort.
     output = input.clone();
 
+    cv::undistort(input, output, camera_matrix, dist_coeffs);
     //
 }
 
@@ -158,7 +205,7 @@ fsiv_undistort_video_stream(cv::VideoCapture&input_stream,
     //Hint: to speed up, first compute the transformation maps
     //(one time only at the beginning using cv::initUndistortRectifyMap)
     // and then only remap (cv::remap) the input frame with the computed maps.
-
+    
     //
     CV_Assert(input_stream.isOpened());
     CV_Assert(output_stream.isOpened());
