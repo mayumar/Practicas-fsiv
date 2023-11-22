@@ -10,7 +10,11 @@ fsiv_generate_3d_calibration_points(const cv::Size& board_size,
     std::vector<cv::Point3f> ret_v;
     //TODO
     //Remember: the first inner point has (1,1) in board coordinates.
-
+    for(int i = 1; i <= board_size.height; i++){
+        for(int j = 1; j <= board_size.width; j++){
+            ret_v.push_back(cv::Point3f(square_size*j, square_size*i, 0.0));
+        }
+    }
     //
     CV_Assert(ret_v.size() == 
         static_cast<size_t>(board_size.width*board_size.height));
@@ -26,7 +30,7 @@ fsiv_fast_find_chessboard_corners(const cv::Mat& img, const cv::Size &board_size
     bool was_found = false;
     // TODO
     // Hint: use cv::findChessboardCorners adding fast check to the defaults flags.
-
+    was_found = cv::findChessboardCorners(img, board_size, corner_points, cv::CALIB_CB_FAST_CHECK);
     //
     return was_found;
 }
@@ -42,6 +46,8 @@ void fsiv_compute_camera_pose(const std::vector<cv::Point3f> &_3dpoints,
     CV_Assert(_3dpoints.size()>=4 && _3dpoints.size()==_2dpoints.size());
     // TODO
     // Hint: use cv::solvePnP to the pose of a calibrated camera.
+    
+    cv::solvePnP(_3dpoints, _2dpoints, camera_matrix, dist_coeffs, rvec, tvec);
 
     //
     CV_Assert(rvec.rows==3 && rvec.cols==1 && rvec.type()==CV_64FC1);
@@ -60,6 +66,17 @@ fsiv_draw_axes(cv::Mat& img,
     // each axis: blue for axis OX, green for axis OY and red for axis OZ.
     // Warning: use of cv::drawFrameAxes() is not allowed.
 
+    std::vector<cv::Point3f> _3d_points = {cv::Point3f(0,0,0), cv::Point3f(size,0,0),
+                                           cv::Point3f(0,size,0), cv::Point3f(0,0,-size)};
+    std::vector<cv::Point2f> _2d_points;
+
+
+    cv::projectPoints(_3d_points, rvec, tvec, camera_matrix, dist_coeffs, _2d_points);
+
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[1], cv::Scalar(255,0,0), line_width);
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[2], cv::Scalar(0,255,0), line_width);
+    cv::line(img, (cv::Point2i)_2d_points[0], (cv::Point2i)_2d_points[3], cv::Scalar(0,0,255), line_width);
+
     //
 }
 
@@ -77,6 +94,13 @@ fsiv_load_calibration_parameters(cv::FileStorage &fs,
     // Hint: use fs["label"] >> var to load data items from the file.
     // @see cv::FileStorage operators "[]" and ">>"
 
+    fs["image-width"] >> camera_size.width;
+    fs["image-height"] >> camera_size.height;
+    fs["error"] >> error;
+    fs["camera-matrix"] >> camera_matrix;
+    fs["distortion-coefficients"] >> dist_coeffs;
+    fs["rvec"] >> rvec;
+    fs["tvec"] >> tvec;
 
     //
     CV_Assert(fs.isOpened());
@@ -99,7 +123,7 @@ fsiv_draw_3d_model(cv::Mat &img, const cv::Mat& M, const cv::Mat& dist_coeffs,
     // Use cv::projectPoints to get the 2D image coordinates of 3D object points,
     // build a vector of vectors of Points, one for each segment, and use
     // cv::polylines to draw the wire frame projected model.
-
+    
     //
 }
 
@@ -123,6 +147,11 @@ fsiv_project_image(const cv::Mat& input, cv::Mat& output,
     //   and use BORDER_TRANSPARENT as a border extrapolation method 
     //   to maintain the underlying image.
     // 
+    std::vector<cv::Point2f> img_corners = {cv::Point2f(0,0), cv::Point2f(input.cols-1,0), cv::Point2f(0,input.rows-1), cv::Point2f(input.cols-1,input.rows-1)};
+    std::vector<cv::Point2f> real_img_corners = {chess_board_corners[0], chess_board_corners[board_size.width-1], chess_board_corners[(board_size.height-1)*board_size.width], chess_board_corners[board_size.height*board_size.width-1]};
 
+    cv::Mat transform = cv::getPerspectiveTransform(img_corners, real_img_corners);
+
+    cv::warpPerspective(input, output, transform, output.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
     //
 }
