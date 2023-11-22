@@ -148,9 +148,9 @@ fsiv_project_image(const cv::Mat& input, cv::Mat& output,
     //   to maintain the underlying image.
     // 
     std::vector<cv::Point2f> img_corners = {cv::Point2f(0,0), cv::Point2f(input.cols-1,0), cv::Point2f(0,input.rows-1), cv::Point2f(input.cols-1,input.rows-1)};
-    std::vector<cv::Point2f> real_img_corners = {chess_board_corners[0], chess_board_corners[board_size.width-1], chess_board_corners[(board_size.height-1)*board_size.width], chess_board_corners[board_size.height*board_size.width-1]};
+    std::vector<cv::Point2f> board_corners = {chess_board_corners[0], chess_board_corners[board_size.width-1], chess_board_corners[(board_size.height-1)*board_size.width], chess_board_corners[board_size.height*board_size.width-1]};
 
-    cv::Mat transform = cv::getPerspectiveTransform(img_corners, real_img_corners);
+    cv::Mat transform = cv::getPerspectiveTransform(img_corners, board_corners);
 
     cv::warpPerspective(input, output, transform, output.size(), cv::INTER_LINEAR, cv::BORDER_TRANSPARENT);
     //
