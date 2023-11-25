@@ -59,7 +59,8 @@ main (int argc, char* const* argv)
         cv::Mat K, dist_coeffs, rvec, tvec;
 
         //TODO: First load the calibration parameters.
-
+        cv::FileStorage fs(calib_fname, cv::FileStorage::Mode::READ);
+        fsiv_load_calibration_parameters(fs, camera_size, error, K, dist_coeffs, rvec, tvec);
         //
 
         cv::namedWindow("INPUT", cv::WINDOW_GUI_EXPANDED+cv::WINDOW_AUTOSIZE);
@@ -70,13 +71,33 @@ main (int argc, char* const* argv)
         if (is_video)
         {
             //TODO
-
+            cv::VideoCapture input(input_fname);
+            int fourcc = input.get(cv::CAP_PROP_FOURCC);
+            if(parser.has("fourcc")){
+                fourcc = parser.get<int>("fourcc");
+            }
+            double fps = input.get(cv::CAP_PROP_FPS);
+            cv::VideoWriter output(output_fname, fourcc, fps, camera_size);
+            fsiv_undistort_video_stream(input, output, K, dist_coeffs, 1, "INPUT", "OUTPUT", fps);
             //
         }
         else
         {
             //TODO
+            cv::Mat input = cv::imread(input_fname);
+            cv::Mat output = input.clone();
+            fsiv_undistort_image(input, output, K, dist_coeffs);
 
+            cv::imshow("INPUT", input);
+            cv::imshow("OUTPUT", output);
+
+            int key = 0;
+            while(key!=27){
+                key = cv::waitKey(0) & 0xff;
+            }
+            cv::destroyAllWindows();
+            
+            cv::imwrite(output_fname, output);
             //
         }
     }

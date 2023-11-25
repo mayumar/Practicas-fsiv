@@ -79,9 +79,21 @@ main (int argc, char* const* argv)
             //TODO
             //Make extrinsic calibration.
             //Remenber: only one view is needed.
-
-
-
+            std::string intrins_name = parser.get<std::string>("i");
+            cv::FileStorage fs(intrins_name, cv::FileStorage::Mode::READ);
+            cv::Size camera_size;
+            float error;
+            cv::Mat camera_matrix, dist_coeffs, rvec, tvec;
+            fsiv_load_calibration_parameters(fs, camera_size, error, camera_matrix, dist_coeffs, rvec, tvec);
+            cv::Mat input1 = cv::imread(input_fnames[0]);
+            std::vector<cv::Point2f> corner_points;
+            cv::namedWindow("POINTS");
+            bool wasfound = fsiv_find_chessboard_corners(input1, cv::Size(cols-1,rows-1), corner_points, "POINTS");
+            std::vector<cv::Point3f> _3dpoints;
+            if(wasfound){
+                _3dpoints = fsiv_generate_3d_calibration_points(cv::Size(cols-1,rows-1), square_size);
+                fsiv_compute_camera_pose(_3dpoints, corner_points, camera_matrix, dist_coeffs, rvec, tvec);
+            }
 
 
             //
@@ -89,8 +101,14 @@ main (int argc, char* const* argv)
             {
                 //TODO
                 //Show WCS axis.
-
-
+                cv::namedWindow("VIEW");    
+                fsiv_draw_axes(input1, camera_matrix, dist_coeffs, rvec, tvec, square_size, 3);
+                cv::imshow("VIEW", input1);
+                int key = 0;
+                while(key!=27){
+                    key = cv::waitKey(0) & 0xff;
+                }
+                cv::destroyAllWindows();
                 //
             }
         }
@@ -100,16 +118,38 @@ main (int argc, char* const* argv)
             //Make an intrisic calibration.
             //Remember: For each view (at least two) you must find the
             //chessboard to get the 3D -> 2D matches.
+            std::vector<std::vector<cv::Point3f>> _3dpoints;
+            std::vector<std::vector<cv::Point2f>> corner_points(input_fnames.size());
+            std::vector<cv::Mat> input_imgs;
+            
+            for(size_t i = 0; i < input_fnames.size(); i++){
+                input_imgs.push_back(cv::imread(input_fnames[i]));
+                fsiv_find_chessboard_corners(input_imgs[i], cv::Size(cols-1,rows-1), corner_points[i]);
+                _3dpoints.push_back(fsiv_generate_3d_calibration_points(cv::Size(cols-1,rows-1), square_size));
+            }
+            
+            cv::Mat camera_matrix, dist_coeffs;
+            std::vector<cv::Mat> rvecs, tvecs;
+            fsiv_calibrate_camera(corner_points, _3dpoints, input_imgs[0].size(), camera_matrix, dist_coeffs, &rvecs, &tvecs);
 
-
+            for(size_t i = 0; i < input_imgs.size(); i++)
+                fsiv_compute_camera_pose(_3dpoints[i], corner_points[i], camera_matrix, dist_coeffs, rvecs[i], tvecs[i]);
             //
 
             if (verbose)
             {
                 //TODO
                 //Show WCS axis on each pattern view.
-
-
+                cv::namedWindow("VIEW");
+                for(size_t i = 0; i < input_imgs.size(); i++){
+                    fsiv_draw_axes(input_imgs[i], camera_matrix, dist_coeffs, rvecs[i], tvecs[i], square_size, 3);
+                    cv::imshow("VIEW", input_imgs[i]);
+                    int key = 0;
+                    while(key!=27){
+                        key = cv::waitKey(0) & 0xff;
+                    }
+                }
+                cv::destroyAllWindows();
                 //
             }
         }

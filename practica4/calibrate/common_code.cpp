@@ -41,7 +41,9 @@ fsiv_find_chessboard_corners(const cv::Mat& img, const cv::Size &board_size,
 
     if(wname != nullptr){
         cv::namedWindow(wname);
-        cv::imshow(wname, img);
+        cv::Mat new_img = img.clone();
+        cv::drawChessboardCorners(new_img, board_size, corner_points, was_found);
+        cv::imshow(wname, new_img);
     }
 
     //
@@ -205,7 +207,27 @@ fsiv_undistort_video_stream(cv::VideoCapture&input_stream,
     //Hint: to speed up, first compute the transformation maps
     //(one time only at the beginning using cv::initUndistortRectifyMap)
     // and then only remap (cv::remap) the input frame with the computed maps.
+    cv::Mat map1, map2;
+    cv::Size size(input_stream.get(cv::CAP_PROP_FRAME_WIDTH), input_stream.get(cv::CAP_PROP_FRAME_HEIGHT));
+    cv::initUndistortRectifyMap(camera_matrix, dist_coeffs, cv::Mat(), camera_matrix, size, CV_32FC1, map1, map2);
+
+    double wait_time = 1000.0/fps;
+    int key = 0;
+
+    cv::Mat input_frame, output_frame;
+    input_stream >> input_frame;
     
+    while(!input_frame.empty() && key!=27){
+        cv::remap(input_frame, output_frame, map1, map2, interp);
+        output_stream.write(output_frame);
+
+        cv::imshow(input_wname, input_frame);
+        cv::imshow(output_wname, output_frame);
+        
+        key = cv::waitKey(wait_time) & 0xff;
+        input_stream >> input_frame;
+    }
+    cv::destroyAllWindows();
     //
     CV_Assert(input_stream.isOpened());
     CV_Assert(output_stream.isOpened());
