@@ -125,26 +125,6 @@ fsiv_draw_3d_model(cv::Mat &img, const cv::Mat& M, const cv::Mat& dist_coeffs,
     // cv::polylines to draw the wire frame projected model.
     std::vector<std::vector<cv::Point2f>> _2d_points = std::vector<std::vector<cv::Point2f>>(5);
 
-    // std::vector<cv::Point3f> _3d_points = {cv::Point3f(0,0,0), cv::Point3f(size,0,0), cv::Point3f(size*2,0,0), cv::Point3f(size*3,0,0),
-    //                                        cv::Point3f(size*4,0,0), cv::Point3f(size*5,0,0), cv::Point3f(size*6,0,0)};
-    // cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[0]);
-
-    // _3d_points = {cv::Point3f(0,0,0), cv::Point3f(size,size,0), cv::Point3f(size*2,size,0), cv::Point3f(size*3,size,0),
-    //               cv::Point3f(size*4,size,0), cv::Point3f(size*5,size,0), cv::Point3f(size*6,size,0)};
-    // cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[1]);
-
-    // _3d_points = {cv::Point3f(0,0,0), cv::Point3f(0,size,0), cv::Point3f(0,size*2,0), cv::Point3f(0,size*3,0), cv::Point3f(0,size*4,0),
-    //               cv::Point3f(0,size*5,0), cv::Point3f(0,size*6,0)};
-    // cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[2]);
-
-    // _3d_points = {cv::Point3f(0,0,0), cv::Point3f(0,0,-size), cv::Point3f(0,0,-size*2), cv::Point3f(0,0,-size*3), cv::Point3f(0,0,-size*4),
-    //               cv::Point3f(0,0,-size*5), cv::Point3f(0,0,-size*6)};
-    // cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[3]);
-
-    // _3d_points = {cv::Point3f(0,0,0), cv::Point3f(0,0,size), cv::Point3f(0,0,size*2), cv::Point3f(0,0,size*3), cv::Point3f(0,0,size*4),
-    //               cv::Point3f(0,0,size*5), cv::Point3f(0,0,size*6)};
-    // cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[4]);
-
     std::vector<cv::Point3f> _3d_points = {cv::Point3f(size*2,size*2,0), cv::Point3f(size*3,size*2,0), cv::Point3f(size*2,size*3,0),
                                            cv::Point3f(size*3,size*3,0)};
     cv::projectPoints(_3d_points, rvec, tvec, M, dist_coeffs, _2d_points[0]);

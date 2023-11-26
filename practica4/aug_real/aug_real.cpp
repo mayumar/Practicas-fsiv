@@ -117,17 +117,14 @@ main (int argc, char* const* argv)
 
         //TODO
         //Compute the 3d coordinates of the board corners.
-        cv::Mat input_frame;
+        cv::Mat input_frame, new_input_frame;
         cap >> input_frame;
         std::vector<cv::Point2f> corner_points;
         bool wasfound = fsiv_fast_find_chessboard_corners(input_frame, board_size, corner_points);
         if(wasfound){
             std::vector<cv::Point3f> _3dpoints =  fsiv_generate_3d_calibration_points(board_size, size);
             fsiv_compute_camera_pose(_3dpoints, corner_points, camera_matrix, dist_coeffs, rvec, tvec);
-        }
-        //
 
-        if(!is_camera && wasfound){
             if(parser.has("i")){
                 fsiv_project_image(projected_image, input_frame, board_size, corner_points);
             }
@@ -138,6 +135,7 @@ main (int argc, char* const* argv)
                 fsiv_draw_3d_model(input_frame, camera_matrix, dist_coeffs, rvec, tvec, size);
             }
         }
+        //
 
         cv::namedWindow("VIDEO", cv::WINDOW_GUI_EXPANDED);
 
@@ -166,9 +164,7 @@ main (int argc, char* const* argv)
                 if(wasfound){
                     std::vector<cv::Point3f> _3dpoints =  fsiv_generate_3d_calibration_points(board_size, size);
                     fsiv_compute_camera_pose(_3dpoints, corner_points, camera_matrix, dist_coeffs, rvec, tvec);
-                }
 
-                if(!is_camera && wasfound){
                     if(parser.has("i")){
                     fsiv_project_image(projected_image, input_frame, board_size, corner_points);
                     }
@@ -179,13 +175,17 @@ main (int argc, char* const* argv)
                         fsiv_draw_3d_model(input_frame, camera_matrix, dist_coeffs, rvec, tvec, size);
                     }
                 }
-            cv::imshow("VIDEO", input_frame);
+                
+                cv::imshow("VIDEO", input_frame);
             }
             
 
             //
             key = cv::waitKey(wait_time) & 0xff;
-            cap >> input_frame;
+            cap >> new_input_frame;
+            if(!new_input_frame.empty()){
+                input_frame = new_input_frame.clone();
+            }
         }
         cv::destroyAllWindows();
     }

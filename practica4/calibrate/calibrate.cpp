@@ -122,9 +122,10 @@ main (int argc, char* const* argv)
             std::vector<std::vector<cv::Point2f>> corner_points(input_fnames.size());
             std::vector<cv::Mat> input_imgs;
             
+            cv::namedWindow("POINTS");
             for(size_t i = 0; i < input_fnames.size(); i++){
                 input_imgs.push_back(cv::imread(input_fnames[i]));
-                fsiv_find_chessboard_corners(input_imgs[i], cv::Size(cols-1,rows-1), corner_points[i]);
+                fsiv_find_chessboard_corners(input_imgs[i], cv::Size(cols-1,rows-1), corner_points[i], "POINTS");
                 _3dpoints.push_back(fsiv_generate_3d_calibration_points(cv::Size(cols-1,rows-1), square_size));
             }
             

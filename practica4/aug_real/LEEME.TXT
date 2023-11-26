@@ -1,0 +1,22 @@
+./aug_real 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real -m 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real -m 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real -m -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
+./aug_real -m -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+
+./aug_real 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
+./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
+./aug_real -m 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
+./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
