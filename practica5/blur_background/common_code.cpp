@@ -2,6 +2,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/video.hpp>
 
+#include <iostream>
 
 #include "common_code.hpp"
 
@@ -22,7 +23,16 @@ fsiv_compute_dense_optical_flow(cv::Mat const &prev,
     // Remember: if flow is not empty, you must use it as initial estimate
     //    setting the corresponding flags in the algorithm. If it is empty, set
     //    flag to 0.
+    
+    if(alg == nullptr)
+        alg = cv::FarnebackOpticalFlow::create();
 
+    if(!flow.empty())
+        alg->setFlags(cv::OPTFLOW_USE_INITIAL_FLOW);
+    else
+        alg->setFlags(0);
+    
+    alg->calc(prev, next, flow);
 
     //
     CV_Assert(flow.type()==CV_32FC2);
@@ -35,8 +45,13 @@ fsiv_compute_optical_flow_magnitude(cv::Mat &flow, cv::Mat& mag)
 
     // TODO
     // Hint: use cv::magnitude.
+    std::vector<cv::Mat> channels;
 
+    cv::split(flow, channels);
 
+    mag = channels[0].clone();
+    
+    cv::magnitude(channels[0], channels[1], mag);
 
     //
     CV_Assert(mag.type()==CV_32FC1);
@@ -48,7 +63,7 @@ fsiv_create_structuring_element(int ste_r, int type)
     cv::Mat ste;
     // TODO
     // Hint: use cv::getStructuringElement.
-
+    ste = cv::getStructuringElement(type, cv::Point(2*ste_r+1, 2*ste_r+1));
     //
     return ste;
 }
@@ -76,7 +91,26 @@ fsiv_compute_of_foreground_mask(cv::Mat const& prev, cv::Mat const& curr,
     // 5. If alpha>0.0 (and input mask is not empty), update mask using a
     //    running average (new_mask = alpha*old_mask + (1-alpha)*current_mask).
     //    When alpha=0.0, new_mask = current_mask.
-    
+    fsiv_compute_dense_optical_flow(prev, curr, flow);
+    cv::Mat current_mask, mag;
+    fsiv_compute_optical_flow_magnitude(flow, mag);
+
+    cv::threshold(mag, current_mask, t, 255, cv::ThresholdTypes::THRESH_BINARY);
+
+    if(ste_r > 0){
+        cv::dilate(current_mask, current_mask, cv::Mat());
+    }
+
+    cv::Mat new_mask;
+    current_mask.convertTo(current_mask, CV_32F);
+    if(alpha > 0.0 && !mask.empty()){
+        new_mask = alpha * mask + current_mask.mul(1-alpha); //el problema eres tú
+    }else if(alpha == 0.0){
+        new_mask = current_mask;
+    }
+
+    mask = new_mask.clone();
+    mask.convertTo(mask, CV_8U);
 
     //
     CV_Assert(mask.size()==prev.size());
