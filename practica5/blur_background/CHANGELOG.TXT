@@ -1,0 +1,11 @@
+* 1.0
+- Start version.
+* 1.1
+- Fixed bug using cv::normalize to generate the mask.
+- Improved preconditions to fsiv_blur_background
+- Force default STEP2 with t=0.15 as default mode of main.
+* 2.0
+- Recoded to use common_code.cpp
+- Added tests.
+- Adapted to 23-24 course.
+
