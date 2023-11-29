@@ -111,6 +111,10 @@ main (int argc, char* const* argv)
                 cv::destroyAllWindows();
                 //
             }
+
+            //Me he dado cuenta de que me faltaba hacer esto al editar los vídeos
+            cv::FileStorage fsout(output_fname, cv::FileStorage::Mode::WRITE);
+            fsiv_save_calibration_parameters(fsout, camera_size, error, camera_matrix, dist_coeffs, rvec, tvec);
         }
         else
         {
@@ -131,7 +135,7 @@ main (int argc, char* const* argv)
             
             cv::Mat camera_matrix, dist_coeffs;
             std::vector<cv::Mat> rvecs, tvecs;
-            fsiv_calibrate_camera(corner_points, _3dpoints, input_imgs[0].size(), camera_matrix, dist_coeffs, &rvecs, &tvecs);
+            float error = fsiv_calibrate_camera(corner_points, _3dpoints, input_imgs[0].size(), camera_matrix, dist_coeffs, &rvecs, &tvecs);
 
             for(size_t i = 0; i < input_imgs.size(); i++)
                 fsiv_compute_camera_pose(_3dpoints[i], corner_points[i], camera_matrix, dist_coeffs, rvecs[i], tvecs[i]);
@@ -153,6 +157,10 @@ main (int argc, char* const* argv)
                 cv::destroyAllWindows();
                 //
             }
+
+            //Me he dado cuenta de que me faltaba hacer esto al editar los vídeos
+            cv::FileStorage fsout(output_fname, cv::FileStorage::Mode::WRITE);
+            fsiv_save_calibration_parameters(fsout, cv::Size(cols-1,rows-1), error, camera_matrix, dist_coeffs, rvecs[rvecs.size()-1], tvecs[tvecs.size()-1]);
         }
     }
     catch (std::exception& e)

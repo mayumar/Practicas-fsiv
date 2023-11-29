@@ -1,22 +1,31 @@
-./aug_real 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+Estimación de la Pose para Realidad Aumentada
 
-./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+Se han resuelto todos los apartados propuestos, tanto los test como el programa principal.
 
-./aug_real -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+Proyección de una imagen y los ejes de coordenadas sobre imagen:
+    ./build/aug_real -i=<image> <rows> <cols> <size> <intrinsics> <input_img>
+    Ejemplo:
+    ./build/aug_real -i=data/computer-vision.jpg 5 6 3 data/logitech.xml data/logitech_000_000.png
 
-./aug_real -m 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real -m 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+Proyección de una imagen y un modelo 3d sobre imagen:
+    ./build/aug_real -m -i=<image> <rows> <cols> <size> <intrinsics> <input_img>
+    Ejemplo:
+    ./build/aug_real -m -i=data/computer-vision.jpg 5 6 3 data/logitech.xml data/logitech_000_000.png
 
-./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
 
-./aug_real -m -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_000.png
-./aug_real -m -v=../data/SpongeBob.mp4 5 6 3 ../data/logitech.xml ../data/logitech_000_002.png
+Proyección de un vídeo y un modelo 3d sobre imagen:
+    ./build/aug_real -m -v=<video> <rows> <cols> <size> <intrinsics> <input_img>
+    Ejemplo:
+    ./build/aug_real -m -v=data/SpongeBob.mp4 5 6 3 data/logitech.xml data/logitech_000_000.png
 
-./aug_real 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
-./aug_real -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
-./aug_real -m 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
-./aug_real -m -i=../data/computer-vision.jpg 5 6 3 ../data/logitech.xml ../data/tablero_000_000.avi
+Proyección de una imagen y los ejes de coordenadas sobre vídeo:
+    ./build/aug_real -i=<image> <rows> <cols> <size> <intrinsics> <input_video>
+    Ejemplo:
+    ./build/aug_real -i=data/computer-vision.jpg 5 6 3 data/logitech.xml data/tablero_000_000.avi
+
+Proyección de una imagen y un modelo 3d sobre vídeo:
+    ./build/aug_real -m -i=<image> <rows> <cols> <size> <intrinsics> <input_video>
+    Ejemplo:
+    ./build/aug_real -m -i=data/computer-vision.jpg 5 6 3 data/logitech.xml data/tablero_000_000.avi
+
+Enlace al vídeo explicación: https://youtu.be/ocU2i0yR7oc

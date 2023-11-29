@@ -1,14 +1,26 @@
-./calibrate -s=3 -r=5 -c=6 --verbose ../data/logitech.xml ../data/logitech_000_000.png ../data/logitech_000_001.png ../data/logitech_000_002.png ../data/logitech_000_003.png ../data/logitech_000_004.png 
+Calibración de la cámara con OpenCV.
 
-./calibrate -s=3 -r=5 -c=6 -i=../data/logitech.xml --verbose ../data/logitech.xml ../data/logitech_000_000.png ../data/logitech_000_001.png ../data/logitech_000_002.png ../data/logitech_000_003.png ../data/logitech_000_004.png
+Se han resuelto todos los apartados propuestos, tanto los test como ambos programas principales.
 
-./calibrate -s=3 -r=7 -c=10 --verbose ../data/elp-intrinsics.xml ../data/elp-view-000.jpg ../data/elp-view-001.jpg ../data/elp-view-002.jpg ../data/elp-view-003.jpg ../data/elp-view-004.jpg 
+Calibración calculando parámetros:
+    ./build/calibrate -s=<num> -r=<num> -c=<num> --verbose <intrinsics> <view1> <view2> <viewn>
+    Ejemplo:
+    ./build/calibrate -s=3 -r=5 -c=6 --verbose data/logitech.xml data/logitech_000_000.png data/logitech_000_001.png data/logitech_000_002.png data/logitech_000_003.png data/logitech_000_004.png 
 
-./calibrate -s=3 -r=7 -c=10 --verbose -i=../data/elp-intrinsics.xml ../data/elp-intrinsics.xml ../data/elp-view-000.jpg ../data/elp-view-001.jpg ../data/elp-view-002.jpg ../data/elp-view-003.jpg ../data/elp-view-004.jpg 
+Calibración con fichero de entrada con los parámetros:
+    ./calibrate -s=<num> -r=<num> -c=<num> -i=<intrinsics> --verbose <intrinsics> <view1> <view2> <viewn>
+    Ejemplo:
+    ./build/calibrate -s=3 -r=5 -c=6 -i=data/logitech.xml --verbose data/logitech.xml data/logitech_000_000.png data/logitech_000_001.png data/logitech_000_002.png data/logitech_000_003.png data/logitech_000_004.png
+
+Corrección de la distorsión en una imagen:
+    ./undistort <intrinsics> <view> <output>
+    Ejemplo:
+    ./build/undistort data/elp-intrinsics.xml data/elp-view-000.jpg out.jpg
+
+Corrección de la distorsión en un vídeo:
+    ./undistort -v <intrinsics> <video> <output>
+    Ejemplo:
+    ./build/undistort -v data/logitech.xml data/tablero_000_000.avi output.avi
 
 
-./undistort ../data/logitech.xml ../data/logitech_000_005.png output.png
-
-./undistort -v ../data/logitech.xml ../data/tablero_000_000.avi output.avi
-
-./undistort ../data/elp-intrinsics.xml ../data/elp-view-000.jpg out.jpg
+Enlace al vídeo explicación: https://youtu.be/LujdBZZpxIw
