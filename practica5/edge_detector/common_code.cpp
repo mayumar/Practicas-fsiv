@@ -11,6 +11,15 @@ fsiv_compute_derivate(cv::Mat const& img, cv::Mat& dx, cv::Mat& dy, int g_r,
     // Hint: if g_r > 0 apply a Gaussian Blur operation with kernel size 2*g_r+1.
     // Hint: use Sobel operator to compute derivate.
 
+    cv::Mat aux = img.clone();
+
+    if(g_r > 0){
+        cv::GaussianBlur(img, aux, cv::Size(2*g_r+1, 2*g_r+1), 0);
+    }
+
+    cv::Sobel(aux, dx, CV_32FC1, 1, 0, s_ap);
+    cv::Sobel(aux, dy, CV_32FC1, 0, 1, s_ap);
+
     //
     CV_Assert(dx.size()==img.size());
     CV_Assert(dy.size()==dx.size());
@@ -28,7 +37,7 @@ fsiv_compute_gradient_magnitude(cv::Mat const& dx, cv::Mat const& dy,
 
     // TODO
     // Hint: use cv::magnitude.
-
+    cv::magnitude(dx, dy, gradient);
     //
 
     CV_Assert(gradient.size()==dx.size());
@@ -41,7 +50,15 @@ fsiv_compute_gradient_histogram(cv::Mat const& gradient, int n_bins, cv::Mat& hi
     // TODO
     // Hint: use cv::minMaxLoc to get the gradient range {0, max_gradient}
     // Remember: use cv::normalize to get a normalized histogram.
+    double min, max_double;
+    cv::minMaxLoc(gradient, &min, &max_double);
 
+    max_gradient = (float)max_double;
+    float grad_range[] = {0, max_gradient};
+    const float *ranges[] = {grad_range};
+    cv::calcHist(&gradient, 1, 0, cv::Mat(), hist, 1, &n_bins, ranges);
+
+    cv::normalize(hist, hist, 1.0, 0.0, cv::NORM_L1);
     //
     CV_Assert(max_gradient>0.0);
     CV_Assert(hist.rows == n_bins);
@@ -58,7 +75,12 @@ fsiv_compute_histogram_percentile(cv::Mat const& hist, float percentile)
     int idx = 0;
     // TODO
     // Remember: The percentile p is the first i that sum{h[0], h[1], ..., h[i]} >= p    
+    float accum = 0.0;
 
+    for(int i = 0; i < hist.rows && percentile > accum; i++){
+        accum += hist.at<float>(i);
+        idx = i;
+    }
     //
     CV_Assert(idx>=0 && idx<hist.rows);
     CV_Assert(idx<=0 || cv::sum(hist(cv::Range(0, idx), cv::Range::all()))[0]<=percentile);
@@ -76,7 +98,7 @@ fsiv_histogram_idx_to_value(int idx, int n_bins, float max_value,
     // TODO
     // Remember: Map integer range [0, n_bins) into float 
     // range [min_value, max_value)
-
+    value = (idx*(max_value-min_value)/n_bins) + min_value;
     //
     CV_Assert(value >= min_value);
     CV_Assert(value < max_value);
