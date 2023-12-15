@@ -95,22 +95,21 @@ fsiv_compute_of_foreground_mask(cv::Mat const& prev, cv::Mat const& curr,
     cv::Mat current_mask, mag;
     fsiv_compute_optical_flow_magnitude(flow, mag);
 
-    cv::threshold(mag, current_mask, t, 255, cv::ThresholdTypes::THRESH_BINARY);
+    cv::threshold(mag, current_mask, t, 255.0, cv::ThresholdTypes::THRESH_BINARY);
 
     if(ste_r > 0){
-        cv::dilate(current_mask, current_mask, cv::Mat());
+        cv::Mat kernel = fsiv_create_structuring_element(ste_r, ste_type);
+        cv::dilate(current_mask, current_mask, kernel);
     }
 
-    cv::Mat new_mask;
-    current_mask.convertTo(current_mask, CV_32F);
     if(alpha > 0.0 && !mask.empty()){
-        new_mask = alpha * mask + current_mask.mul(1-alpha); //el problema eres tú
-    }else if(alpha == 0.0){
-        new_mask = current_mask;
+        mask.convertTo(mask, current_mask.type());
+        cv::addWeighted(mask, alpha, current_mask, 1.0 - alpha, 0.0, mask);
+    }else{
+        current_mask.copyTo(mask);
     }
 
-    mask = new_mask.clone();
-    mask.convertTo(mask, CV_8U);
+    mask.convertTo(mask, CV_8UC1);
 
     //
     CV_Assert(mask.size()==prev.size());
@@ -137,7 +136,13 @@ fsiv_blur_background(cv::Mat const& input,
     // TODO
     // Hint: use cv::blur and cv::GaussianBlur to blur the background.
     // Hint: use cv::Mat::copyTo with mask to fuse foreground and background.    
+    if(gaussian){
+        cv::GaussianBlur(input, output, cv::Size(2*r+1, 2*r+1), 0);
+    }else{
+        cv::blur(input, output, cv::Size(2*r+1,2*r+1));
+    }
 
+    input.copyTo(output, fg_mask);
     //
 
     CV_Assert(output.type()==input.type());
