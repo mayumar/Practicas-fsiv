@@ -116,7 +116,14 @@ fsiv_percentile_edge_detector(cv::Mat const& gradient, cv::Mat& edges,
     // Remember: map histogram range {0, ..., n_bins} to the gradient range 
     // {0.0, ..., max_grad}
     // Hint: use "operator >=" to threshold the gradient magnitude image.
+    cv::Mat hist;
+    float max_gradient;
+    fsiv_compute_gradient_histogram(gradient, n_bins, hist, max_gradient);
+    auto percentile = fsiv_compute_histogram_percentile(hist, th);
+    auto value = fsiv_histogram_idx_to_value(percentile, n_bins, max_gradient);
 
+    cv::threshold(gradient, edges, value, 255, cv::THRESH_BINARY);
+    edges.convertTo(edges, CV_8UC1);
     //
     CV_Assert(edges.type()==CV_8UC1);
     CV_Assert(edges.size()==gradient.size());
@@ -131,7 +138,9 @@ fsiv_otsu_edge_detector(cv::Mat const& gradient, cv::Mat& edges)
     // Hint: normalize input gradient into rango (0, 255) to use 
     // cv::threshold properly.
     //
-
+    cv::Mat new_gradient;
+    cv::normalize(gradient, new_gradient, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::threshold(new_gradient, edges, 0, 255, cv::THRESH_BINARY + cv::THRESH_OTSU);
     //
     CV_Assert(edges.type()==CV_8UC1);
     CV_Assert(edges.size()==gradient.size());
@@ -150,7 +159,17 @@ fsiv_canny_edge_detector(cv::Mat const& dx, cv::Mat const& dy, cv::Mat& edges,
     // gradient range to be used in canny method.
     // Remember: we compute gradients with L2_NORM so we must indicate this in
     // the canny method too.
+    cv::Mat gradient, hist;
+    fsiv_compute_gradient_magnitude(dx, dy, gradient);
+    float max_gradient;
+    fsiv_compute_gradient_histogram(gradient, n_bins, hist, max_gradient);
+    auto th1_perc = fsiv_compute_histogram_percentile(hist, th1);
+    auto th2_perc = fsiv_compute_histogram_percentile(hist, th2);
 
+    cv::Mat new_dx, new_dy;
+    dx.convertTo(new_dx, CV_16SC1);
+    dy.convertTo(new_dy, CV_16SC1);
+    cv::Canny(new_dx, new_dy, edges, th1_perc, th2_perc, true);
     //
     CV_Assert(edges.type()==CV_8UC1);
     CV_Assert(edges.size()==dx.size());
@@ -168,6 +187,25 @@ fsiv_compute_confusion_matrix(cv::Mat const& gt, cv::Mat const& pred, cv::Mat & 
     // rows are ground truth {Positive: "is edge", Negative: "is not edge"} and
     // the columns are the predictions labels {"is edge", "is not edge"}
     // A pixel value means edge if it is <> 0, else is a "not edge" pixel.
+    cm = cv::Mat::zeros(2, 2, CV_32FC1);
+
+    for(int i = 0; i < gt.rows; i++){
+        for(int j = 0; j < gt.cols; j++){
+            if(gt.at<uchar>(i,j) != 0){
+                if(pred.at<uchar>(i,j) != 0){
+                    cm.at<float>(0,0)++;
+                }else{
+                    cm.at<float>(0,1)++;
+                }
+            }else{
+                if(pred.at<uchar>(i,j) != 0){
+                    cm.at<float>(1,0)++;
+                }else{
+                    cm.at<float>(1,1)++;
+                }
+            }
+        }
+    }
 
     //
     CV_Assert(cm.type()==CV_32FC1);
@@ -182,7 +220,7 @@ fsiv_compute_sensitivity(cv::Mat const& cm)
     float sensitivity=0.0;
     // TODO    
     // Hint: see https://en.wikipedia.org/wiki/Confusion_matrix
-
+    sensitivity = cm.at<float>(0,0) / (cm.at<float>(0,0) + cm.at<float>(0,1));
     //
     return sensitivity;
 }
@@ -195,7 +233,7 @@ fsiv_compute_precision(cv::Mat const& cm)
     float precision=0.0;
     // TODO    
     // Hint: see https://en.wikipedia.org/wiki/Confusion_matrix
-
+    precision = cm.at<float>(0,0) / (cm.at<float>(0,0) + cm.at<float>(1,0));
     //
     return precision;
 }
@@ -208,7 +246,7 @@ fsiv_compute_F1_score(cv::Mat const& cm)
     float F1 = 0.0;
     // TODO
     // Hint: see https://en.wikipedia.org/wiki/Confusion_matrix
-
+    F1 = 2*cm.at<float>(0,0) / (2*cm.at<float>(0,0) + cm.at<float>(1,0) + cm.at<float>(0,1));
     //
     return F1;
 }
