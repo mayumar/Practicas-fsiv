@@ -1,0 +1,6 @@
+Suavizado del Fondo basado en Flujo Óptico
+
+Se han completado todas las funciones del archivo common_code.
+No se han realizado los puntos relacionados con el programa principal.
+
+Vídeo explicación: https://youtu.be/N-aApBc3d5w

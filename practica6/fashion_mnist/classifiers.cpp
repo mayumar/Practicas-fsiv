@@ -11,7 +11,10 @@ fsiv_create_knn_classifier(int K)
     //Set algorithm type to BRUTE_FORCE.
     //Set it as a classifier (setIsClassifier)
     //Set hyperparameter K.
-
+    knn = cv::ml::KNearest::create();
+    knn -> setAlgorithmType(-1);
+    knn -> setIsClassifier(true);
+    knn -> setDefaultK(K);
     //
 
     CV_Assert(knn != nullptr);
