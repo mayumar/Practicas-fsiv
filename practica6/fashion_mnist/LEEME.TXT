@@ -1,0 +1,5 @@
+Categorización de imágenes usando el dataset Fashion Mnist.
+
+Sólo se han completado las funciones correspondientes al test de common_code
+
+Vídeo explicación: https://youtu.be/XCFho7yE3Wo
