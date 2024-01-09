@@ -58,6 +58,14 @@ fsiv_extend_image(const cv::Mat& img, const cv::Size& new_size, int ext_type)
     }
 
     img.copyTo(out(cv::Rect(rw, rh, img.cols, img.rows)));
+
+    /*
+        int r = (new_size.height-img.rows)/2;
+        if(ext_type == 0)
+            cv::copyMakeBorder(img, out, r, r, r, r, cv::BORDER_CONSTANT);
+        else
+            cv::copyMakeBorder(img, out, r, r, r, r, cv::BORDER_WRAP);
+    */
     //
     CV_Assert(out.type()==img.type());
     CV_Assert(out.rows == new_size.height);
